@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db');
+const db = require('../config/db'); // Gunakan db dari config.js
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const connection = require('../config/db'); // Sesuaikan dengan lokasi db.js
+require('dotenv').config(); // Pastikan menggunakan environment variable
 
-const SECRET_KEY = 'your_secret_key'; 
+const SECRET_KEY = process.env.SECRET_KEY; // Gunakan SECRET_KEY dari environment variable
 
 // Registrasi pengguna untuk platform pencari lowongan kerja dan konsultasi pra-kerja
 router.post('/register', async (req, res) => {
@@ -172,25 +172,6 @@ router.delete('/pengguna/:id', async (req, res) => {
         console.error('Error deleting user:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
-});
-
-// Hash password pengguna
-connection.query('SELECT id, kata_sandi FROM pengguna', (err, users) => {
-    if (err) throw err;
-
-    users.forEach(user => {
-        bcrypt.hash(user.kata_sandi, 10, (err, hash) => {
-            if (err) throw err;
-            connection.query(
-                'UPDATE pengguna SET kata_sandi = ? WHERE id = ?',
-                [hash, user.id],
-                (err) => {
-                    if (err) throw err;
-                    console.log(`Kata sandi untuk ID ${user.id} telah di-hash.`);
-                }
-            );
-        });
-    });
 });
 
 module.exports = router;
